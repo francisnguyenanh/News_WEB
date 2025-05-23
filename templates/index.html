@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% block content %}
+<h1>World News</h1>
+<form method="POST" action="{{ url_for('change_theme') }}" class="mb-4">
+    <label for="bg_color">Change Background Color:</label>
+    <input type="color" id="bg_color" name="bg_color" value="{{ bg_color }}">
+    <button type="submit" class="btn btn-primary">Apply</button>
+</form>
+<form method="POST" action="{{ url_for('add_topic') }}" class="mb-4">
+    <div class="row">
+        <div class="col-md-4">
+            <input type="text" class="form-control" name="name" placeholder="Topic Name" required>
+        </div>
+        <div class="col-md-4">
+            <input type="text" class="form-control" name="keyword" placeholder="Keyword" required>
+        </div>
+        <div class="col-md-4">
+            <button type="submit" class="btn btn-success">Add Topic</button>
+        </div>
+    </div>
+</form>
+<h3>Topics</h3>
+<ul class="list-group mb-4">
+    {% for topic in topics %}
+    <li class="list-group-item d-flex justify-content-between align-items-center">
+        {{ topic.name }}
+        <div>
+            <form method="POST" action="{{ url_for('toggle_topic', id=topic.id) }}" style="display:inline;">
+                <button type="submit" class="btn btn-sm btn-secondary">
+                    {{ 'Hide' if topic.is_visible else 'Show' }}
+                </button>
+            </form>
+            <a href="{{ url_for('delete_topic', id=topic.id) }}" class="btn btn-sm btn-danger">Delete</a>
+        </div>
+    </li>
+    {% endfor %}
+</ul>
+<h3>Articles</h3>
+{% for article in articles %}
+<div class="card mb-3">
+    <div class="row g-0">
+        {% if article.image_url %}
+        <div class="col-md-4">
+            <img src="{{ article.image_url }}" class="img-fluid rounded-start" alt="Article Image" 
+                 onerror="this.style.display='none'">
+        </div>
+        {% endif %}
+        <div class="col-md-{{ '8' if article.image_url else '12' }}">
+            <div class="card-body">
+                <h5 class="card-title">{{ article.title }}</h5>
+                <p class="card-text">{{ article.description }}</p>
+                <p class="card-text"><small class="text-muted">{{ article.topic }}</small></p>
+                <a href="{{ article.url }}" class="btn btn-primary" target="_blank">Read More</a>
+                <form method="POST" action="{{ url_for('save_article') }}" style="display:inline;">
+                    <input type="hidden" name="title" value="{{ article.title }}">
+                    <input type="hidden" name="description" value="{{ article.description }}">
+                    <input type="hidden" name="url" value="{{ article.url }}">
+                    <input type="hidden" name="image_url" value="{{ article.image_url }}">
+                    <input type="hidden" name="topic" value="{{ article.topic }}">
+                    <button type="submit" class="btn btn-success">Save</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+{% endblock %}
